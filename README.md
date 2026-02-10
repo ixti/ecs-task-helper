@@ -1,5 +1,9 @@
 # ECS Task Helper Utilities
 
+[![CI](https://github.com/ixti/ecs-task-helper/actions/workflows/ci.yml/badge.svg)](https://github.com/ixti/ecs-task-helper/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/ixti/ecs-task-helper/graph/badge.svg?token=toUztJc66F)](https://codecov.io/gh/ixti/ecs-task-helper)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 A lightweight CLI tool providing utilities for AWS ECS containers.
 It fetches ECS task metadata and exposes it as environment variables,
 making container introspection simple.
@@ -149,7 +153,3 @@ go test ./...
 # Build Docker image
 docker build -t ecs-task-helper .
 ```
-
-## License
-
-[MIT](LICENSE)
