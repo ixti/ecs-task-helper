@@ -48,7 +48,7 @@ func TestNewExecCommand(t *testing.T) {
 		assert.Contains(capturedEnv, "ECS_CLUSTER_NAME=default")
 	})
 
-	t.Run("with missing metadata URI uses current environ", func(t *testing.T) {
+	t.Run("with missing metadata URI uses empty metadata", func(t *testing.T) {
 		assert := assert.New(t)
 		require := require.New(t)
 
@@ -75,23 +75,29 @@ func TestNewExecCommand(t *testing.T) {
 		err := cmd.Execute()
 
 		require.NoError(err)
-		assert.Equal([]string{"PATH=/usr/bin", "CUSTOM=value"}, capturedEnv)
+		assert.Contains(capturedEnv, "PATH=/usr/bin")
+		assert.Contains(capturedEnv, "CUSTOM=value")
+		assert.Contains(capturedEnv, "ECS_CONTAINER_NAME=")
+		assert.Contains(capturedEnv, "ECS_CLUSTER_NAME=")
 	})
 
-	t.Run("with fetch error returns error", func(t *testing.T) {
+	t.Run("with fetch error continues with empty metadata", func(t *testing.T) {
 		assert := assert.New(t)
+		require := require.New(t)
 
-		fetchErr := errors.New("network error")
+		var capturedEnv []string
+
 		deps := &execCmdDeps{
 			metadataCmdDeps: metadataCmdDeps{
 				FetchMetadata: func(ctx context.Context, timeout time.Duration) (*container_metadata.Metadata, error) {
-					return nil, fetchErr
+					return nil, errors.New("network error")
 				},
 				Timeout: 5 * time.Second,
 			},
-			Environ:  func() []string { return nil },
+			Environ:  func() []string { return []string{"PATH=/usr/bin", "CUSTOM=value"} },
 			LookPath: func(file string) (string, error) { return "/bin/" + file, nil },
 			Exec: func(argv0 string, argv []string, envv []string) error {
+				capturedEnv = envv
 				return nil
 			},
 		}
@@ -101,7 +107,11 @@ func TestNewExecCommand(t *testing.T) {
 
 		err := cmd.Execute()
 
-		assert.ErrorIs(err, fetchErr)
+		require.NoError(err)
+		assert.Contains(capturedEnv, "PATH=/usr/bin")
+		assert.Contains(capturedEnv, "CUSTOM=value")
+		assert.Contains(capturedEnv, "ECS_CONTAINER_NAME=")
+		assert.Contains(capturedEnv, "ECS_CLUSTER_NAME=")
 	})
 
 	t.Run("with LookPath error returns error", func(t *testing.T) {

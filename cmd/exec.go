@@ -4,7 +4,6 @@
 package cmd
 
 import (
-	"errors"
 	"log/slog"
 	"os"
 	"os/exec"
@@ -46,21 +45,12 @@ func NewExecCommand(d *execCmdDeps) *cobra.Command {
 
 		metadata, err := d.FetchMetadata(cmd.Context(), d.Timeout)
 
-		var environ []string
-
 		if err != nil {
-			if !errors.Is(err, container_metadata.ErrMissingMetadataURI) {
-				slog.Error("Can't retrieve ECS task metadata", "error", err)
-				return err
-			}
-
-			slog.Warn("Missing ECS metadata URI, using current environment")
-			environ = d.Environ()
-		} else {
-			environ = metadata.EnvironWith(d.Environ())
+			slog.Error("Can't retrieve ECS task metadata", "error", err)
+			metadata = &container_metadata.Metadata{}
 		}
 
-		if err := d.Exec(argv0, argv, environ); err != nil {
+		if err := d.Exec(argv0, argv, metadata.EnvironWith(d.Environ())); err != nil {
 			slog.Error("Command execution failed", "command", args[0], "error", err)
 			return err
 		}
