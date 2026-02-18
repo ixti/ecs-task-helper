@@ -29,10 +29,36 @@ func expectedOverrides() []string {
 		"ECS_CONTAINER_NAME=curl",
 		"ECS_CONTAINER_IMAGE=111122223333.dkr.ecr.us-west-2.amazonaws.com/curltest:latest",
 		"ECS_TASK_ARN=arn:aws:ecs:us-west-2:111122223333:task/default/8f03e41243824aea923aca126495f665",
+		"ECS_TASK_ID=8f03e41243824aea923aca126495f665",
 		"ECS_TASK_DEFINITION_FAMILY=curltest",
 		"ECS_TASK_DEFINITION_VERSION=24",
 		"ECS_CLUSTER_NAME=default",
 	}
+}
+
+func TestMetadata_TaskID(t *testing.T) {
+	t.Run("with valid TaskARN", func(t *testing.T) {
+		metadata := &Metadata{
+			ClusterName: "default",
+			TaskARN:     "arn:aws:ecs:us-west-2:111122223333:task/default/8f03e41243824aea923aca126495f665",
+		}
+
+		assert.Equal(t, "8f03e41243824aea923aca126495f665", metadata.TaskID())
+	})
+
+	t.Run("with invalid TaskARN", func(t *testing.T) {
+		metadata := &Metadata{
+			ClusterName: "deadbeef",
+			TaskARN:     "arn:aws:ecs:us-west-2:111122223333:task/default/8f03e41243824aea923aca126495f665",
+		}
+
+		assert.Equal(t, "", metadata.TaskID())
+	})
+
+	t.Run("with blank TaskARN", func(t *testing.T) {
+		metadata := &Metadata{}
+		assert.Equal(t, "", metadata.TaskID())
+	})
 }
 
 func TestMetadata_ToJSON(t *testing.T) {

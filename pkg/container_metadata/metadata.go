@@ -15,6 +15,19 @@ type Metadata struct {
 	ClusterName           string `json:"clusterName"`
 }
 
+// TaskID returns TaskID part of TaskARN.
+func (m *Metadata) TaskID() string {
+	if m.ClusterName == "" {
+		return ""
+	}
+
+	if _, id, ok := strings.Cut(m.TaskARN, ":task/"+m.ClusterName+"/"); ok {
+		return id
+	}
+
+	return ""
+}
+
 // EnvironWith returns ECS metadata as environment variables.
 // If base is nil, returns only the ECS metadata variables.
 // If base is provided, returns base with ECS metadata variables merged in
@@ -25,6 +38,7 @@ func (m *Metadata) EnvironWith(base []string) []string {
 		"ECS_CONTAINER_NAME=" + m.ContainerName,
 		"ECS_CONTAINER_IMAGE=" + m.ContainerImage,
 		"ECS_TASK_ARN=" + m.TaskARN,
+		"ECS_TASK_ID=" + m.TaskID(),
 		"ECS_TASK_DEFINITION_FAMILY=" + m.TaskDefinitionFamily,
 		"ECS_TASK_DEFINITION_VERSION=" + m.TaskDefinitionVersion,
 		"ECS_CLUSTER_NAME=" + m.ClusterName,

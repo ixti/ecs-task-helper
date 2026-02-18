@@ -55,6 +55,7 @@ ecs-task-helper metadata --format json
 | `ECS_CONTAINER_NAME`            | `containerName`           | Name of the container         |
 | `ECS_CONTAINER_IMAGE`           | `containerImage`          | Container image               |
 | `ECS_TASK_ARN`                  | `taskArn`                 | ARN of the ECS task           |
+| `ECS_TASK_ID`                   | -                         | ID of the ECS task            |
 | `ECS_TASK_DEFINITION_FAMILY`    | `taskDefinitionFamily`    | Task definition family name   |
 | `ECS_TASK_DEFINITION_VERSION`   | `taskDefinitionVersion`   | Task definition version       |
 | `ECS_CLUSTER_NAME`              | `clusterName`             | Name of the ECS cluster       |
